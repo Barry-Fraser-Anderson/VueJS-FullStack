@@ -118,10 +118,12 @@ const app = express();
 // Body parser, reading data from body into req.body
 app.use(express.json());
 
+// Get all products
 app.get('/api/products', (req, res) => {
   res.status(200).json(products);
 });
 
+// Get a product
 app.get('/api/products/:productId', (req, res) => {
   const { productId } = req.params;
   const product = products.find(product => product.id === productId);
@@ -132,7 +134,27 @@ app.get('/api/products/:productId', (req, res) => {
   }
 });
 
+// List cart items
 app.get('/api/users/:userId/cart', (req, res) => {
+  res.status(200).json(cartItems);
+});
+
+// Add an item to the cart
+app.post('/api/users/:userId/cart', (req, res) => {
+  const { productId } = req.body;
+  const product = products.find(product => product.id === productId);
+  if (product) {
+    cartItems.push(product);
+    res.status(200).json(product);
+  } else {
+    res.status(404).json('Product not found');
+  }
+});
+
+// Delete an item from the cart
+app.delete('/api/users/:userId/cart/:productId', (req, res) => {
+  const { productId } = req.params;
+  cartItems = cartItems.filter(product => product.id !== productId);
   res.status(200).json(cartItems);
 });
 
