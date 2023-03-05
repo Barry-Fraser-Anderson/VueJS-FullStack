@@ -8,8 +8,8 @@
 </template>
 
 <script>
+import axios from 'axios';
 import ProductsList from '@/components/ProductsList';
-import { cartItems } from '@/fake-data';
 export default {
   name: 'CartPage',
   components: {
@@ -17,8 +17,13 @@ export default {
   },
   data() {
     return {
-      cartItems,
+      cartItems: [],
     };
+  },
+  async created() {
+    const result = await axios.get('http://localhost:8000/api/users/12345/cart');
+    const cartItems = result.data;
+    this.cartItems = cartItems;
   },
   computed: {
     totalPrice() {

@@ -1,15 +1,22 @@
 import express from 'express';
 import { MongoClient } from 'mongodb';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+// const database = 'mongodb://127.0.0.1:27017?directConnection=true';
 const DATABASE = 'mongodb+srv://barryanderson:<PASSWORD>@cluster0.iiobiwd.mongodb.net/vue-db';
 const database = DATABASE.replace('<PASSWORD>', '471WxFVa97n4QHOU');
-
 export let cartItems = [];
 
 const app = express();
-
-// Body parser, reading data from body into req.body
 app.use(express.json());
+app.use(cors({ origin: '*' }));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/images', express.static(path.join(__dirname, '../assets')));
+app.use(express.static(path.join(__dirname)));
 
 // Get all products
 app.get('/api/products', async (req, res) => {
@@ -62,6 +69,7 @@ app.get('/api/users/:userId/cart', async (req, res) => {
 // Add an item to the cart
 app.post('/api/users/:userId/cart', async (req, res) => {
   const { userId } = req.params;
+  const { productId } = req.params;
   const client = await MongoClient.connect(database, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -69,6 +77,7 @@ app.post('/api/users/:userId/cart', async (req, res) => {
   const db = client.db('vue-db');
   await db.collection('users').updateOne({ id: userId }, { $addToSet: { cartItems: productId } });
   const user = await db.collection('users').findOne({ id: userId });
+  const products = await db.collection('products').find({}).toArray();
   const cartItemIds = user.cartItems;
   const cartItems = cartItemIds.map(id => {
     products.find(product => product.id === id);
