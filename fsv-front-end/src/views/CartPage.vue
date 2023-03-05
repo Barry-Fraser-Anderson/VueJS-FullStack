@@ -24,17 +24,15 @@ export default {
     async removeFromCart(productId) {
       const result = await axios.delete(`/api/users/12345/cart/${productId}`);
       this.cartItems = result.data;
-      console.log('cartItems = ', this.cartItems);
     }
   },
   async created() {
     const result = await axios.get('/api/users/12345/cart');
     this.cartItems = result.data;
-    console.log('cartItems = ', this.cartItems);
   },
   computed: {
     totalPrice() {
-      return this.cartItems.reduce((sum, item) => sum + Number(item.price), 0);
+      return this.cartItems?.reduce((sum, item) => sum + Number(item.price), 0);
     },
   },
 };

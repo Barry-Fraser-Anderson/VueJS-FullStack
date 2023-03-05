@@ -67,7 +67,7 @@ app.get('/api/users/:userId/cart', async (req, res) => {
 // Add an item to the cart
 app.post('/api/users/:userId/cart', async (req, res) => {
   const { userId } = req.params;
-  const { productId } = req.params;
+  const { productId } = req.body;
   const client = await MongoClient.connect(database, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -98,7 +98,6 @@ app.delete('/api/users/:userId/cart/:productId', async (req, res) => {
   const cartItems = cartItemIds.map(id => {
     products.find(product => product.id === id);
   });
-  cartItems = cartItems.filter(product => product.id !== productId);
   res.status(200).json(cartItems);
   client.close();
 });
