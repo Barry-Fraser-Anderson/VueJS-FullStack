@@ -59,9 +59,7 @@ app.get('/api/users/:userId/cart', async (req, res) => {
   if (!user) return res.status(400).json('User not found');
   const products = await db.collection('products').find({}).toArray();
   const cartItemIds = user.cartItems;
-  const cartItems = cartItemIds.map(id => {
-    products.find(product => product.id === id);
-  });
+  const cartItems = cartItemIds.map(id => products.find(product => product.id === id));
   res.status(200).json(cartItems);
   client.close();
 });
@@ -77,11 +75,10 @@ app.post('/api/users/:userId/cart', async (req, res) => {
   const db = client.db('vue-db');
   await db.collection('users').updateOne({ id: userId }, { $addToSet: { cartItems: productId } });
   const user = await db.collection('users').findOne({ id: userId });
-  const products = await db.collection('products').find({}).toArray();
+  if (!user) return res.status(400).json('User not found');
   const cartItemIds = user.cartItems;
-  const cartItems = cartItemIds.map(id => {
-    products.find(product => product.id === id);
-  });
+  const products = await db.collection('products').find({}).toArray();
+  const cartItems = cartItemIds.map(id => products.find(product => product.id === id));
   res.status(200).json(cartItems);
   client.close();
 });
